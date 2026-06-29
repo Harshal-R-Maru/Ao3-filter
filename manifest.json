@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "AO3 Filter",
+  "version": "1.0.0",
+  "description": "Block unwanted fanworks on Archive of Our Own with custom CSS",
+  "action": {
+    "default_popup": "ao3_css_generator.html"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "*://archiveofourown.org/*"
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "Harshal-Maru-ao3-filter@mozillians.org",
+      "strict_min_version": "109.0"
+    }
+  }
+}

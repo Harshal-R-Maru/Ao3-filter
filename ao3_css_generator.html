@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AO3 Filter</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-top">
+                <h1>🔍 AO3 Filter</h1>
+                <button id="darkModeToggle" class="btn btn-secondary btn-small" title="Toggle dark mode">🌙</button>
+            </div>
+            <p>Block unwanted fics with custom CSS rules</p>
+            <div class="credit">
+                <span>Created by Harshal Maru</span>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="author">👤 Author Blocker</button>
+            <button class="tab-btn" data-tab="tags">🏷️ Tag Blocker</button>
+            <button class="tab-btn" data-tab="fics">📚 Block Fics</button>
+        </div>
+
+        <!-- Author Blocker Tab -->
+        <div id="author" class="tab-content active">
+            <div class="message" id="authorMessage"></div>
+            <div class="form-group">
+                <label>Author Profile URL</label>
+                <div class="input-group">
+                    <div class="input-wrapper" style="flex: 1;">
+                        <input type="text" id="authorUrl" placeholder="https://archiveofourown.org/users/username" />
+                        <button class="clear-btn" data-clear="authorUrl">✕</button>
+                    </div>
+                    <button class="btn btn-primary" id="generateAuthorBtn">
+                        <span id="authorBtnText">Generate CSS</span>
+                        <span class="spinner" id="authorSpinner" style="display: none;"></span>
+                    </button>
+                </div>
+                <div class="shortcut-hint">💡 Press Enter to generate</div>
+            </div>
+
+            <div id="authorCssOutput" style="display: none;">
+                <label>Generated CSS</label>
+                <div class="code-block" id="authorCssCode"></div>
+                <div class="button-group" id="authorCopyBtnGroup" style="display: none;">
+                    <button class="btn btn-copy" data-copy="authorCssCode">📋 Copy to Clipboard</button>
+                    <button class="btn btn-secondary btn-small" data-download="authorCssCode"
+                        data-filename="ao3-author-blocker.css">⬇️ Download</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tag Blocker Tab -->
+        <div id="tags" class="tab-content">
+            <div class="message" id="tagsMessage"></div>
+            <div class="form-group">
+                <label>Fic URL</label>
+                <div class="input-group">
+                    <div class="input-wrapper" style="flex: 1;">
+                        <input type="text" id="ficUrl" placeholder="https://archiveofourown.org/works/12345" />
+                        <button class="clear-btn" data-clear="ficUrl">✕</button>
+                    </div>
+                    <button class="btn btn-primary" id="fetchTagsBtn">
+                        <span id="tagsBtnText">Fetch Tags</span>
+                        <span class="spinner" id="tagsSpinner" style="display: none;"></span>
+                    </button>
+                </div>
+                <div class="shortcut-hint">💡 Press Enter to fetch</div>
+            </div>
+
+            <div id="tagOutput" style="display: none;">
+                <div class="form-group">
+                    <label>Select Tags to Block</label>
+                    <div class="button-group" style="margin-top: 12px; margin-bottom: 12px;">
+                        <button class="btn btn-secondary btn-small" id="selectAllTagsBtn">✓ Select All</button>
+                        <button class="btn btn-secondary btn-small" id="clearAllTagsBtn">✗ Clear All</button>
+                    </div>
+                    <div id="tagsWarningsSection"></div>
+                    <div id="tagsRelationshipsSection"></div>
+                    <div id="tagsCharactersSection"></div>
+                    <div id="tagsExtraSection"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Generated CSS</label>
+                    <div class="code-block" id="tagsCssCode"></div>
+                    <div class="stats" id="tagsStats"></div>
+                    <div class="button-group" id="tagsCopyBtnGroup">
+                        <button class="btn btn-copy" data-copy="tagsCssCode">📋 Copy to Clipboard</button>
+                        <button class="btn btn-secondary btn-small" data-download="tagsCssCode"
+                            data-filename="ao3-tag-blocker.css">⬇️ Download</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Block Fics Tab -->
+        <div id="fics" class="tab-content">
+            <div class="message" id="ficsMessage"></div>
+            <div class="form-group">
+                <label>Author Profile URL</label>
+                <div class="input-group">
+                    <div class="input-wrapper" style="flex: 1;">
+                        <input type="text" id="ficAuthorUrl" placeholder="https://archiveofourown.org/users/username" />
+                        <button class="clear-btn" data-clear="ficAuthorUrl">✕</button>
+                    </div>
+                    <button class="btn btn-primary" id="fetchFicsBtn">
+                        <span id="ficsBtnText">Load All Fics</span>
+                        <span class="spinner" id="ficsSpinner" style="display: none;"></span>
+                    </button>
+                </div>
+                <div class="shortcut-hint">💡 Press Enter to load</div>
+            </div>
+
+            <div id="ficsOutput" style="display: none;">
+                <div class="form-group">
+                    <input type="text" id="ficsSearchInput" placeholder="🔍 Search fics..."
+                        style="margin-bottom: 12px;" />
+                    <div class="button-group">
+                        <button class="btn btn-secondary btn-small" id="selectAllFicsBtn">✓ Select All</button>
+                        <button class="btn btn-secondary btn-small" id="clearAllFicsBtn">✗ Clear All</button>
+                    </div>
+                </div>
+                <div id="fandosList"></div>
+
+                <div class="form-group">
+                    <label>Generated CSS</label>
+                    <div class="code-block" id="ficsCssCode"></div>
+                    <div class="stats" id="ficsStats"></div>
+                    <div class="button-group" id="ficsCopyBtnGroup">
+                        <button class="btn btn-copy" data-copy="ficsCssCode">📋 Copy to Clipboard</button>
+                        <button class="btn btn-secondary btn-small" data-download="ficsCssCode"
+                            data-filename="ao3-fic-blocker.css">⬇️ Download</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="script.js"></script>
+</body>
+
+</html>

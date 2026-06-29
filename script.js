@@ -219,21 +219,45 @@ function extractTagsByClass(metadata, className) {
 
 function displayTagCategory(sectionId, title, tags) {
     const section = document.getElementById(sectionId);
+
+    while (section.firstChild) {
+        section.removeChild(section.firstChild);
+    }
+
     if (tags.length === 0) {
-        section.innerHTML = '';
         return;
     }
-    let html = `<div class="tag-category">
-        <div class="tag-category-title">${title}</div>
-        <div class="tag-list">`;
+
+    const categoryDiv = document.createElement('div');
+    categoryDiv.className = 'tag-category';
+
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'tag-category-title';
+    titleDiv.textContent = title;
+    categoryDiv.appendChild(titleDiv);
+
+    const listDiv = document.createElement('div');
+    listDiv.className = 'tag-list';
+
     tags.forEach(tag => {
-        html += `<label>
-            <input type="checkbox" class="tag-checkbox" value="${tag.encoded}" data-tag="${tag.display}">
-            <span>${tag.display}</span>
-        </label>`;
+        const label = document.createElement('label');
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'tag-checkbox';
+        checkbox.value = tag.encoded;
+        checkbox.dataset.tag = tag.display;
+        
+        const span = document.createElement('span');
+        span.textContent = tag.display;
+        
+        label.appendChild(checkbox);
+        label.appendChild(span);
+        listDiv.appendChild(label);
     });
-    html += '</div></div>';
-    section.innerHTML = html;
+
+    categoryDiv.appendChild(listDiv);
+    section.appendChild(categoryDiv);
     updateTagCSS();
 }
 
@@ -245,8 +269,25 @@ function updateTagCSS() {
         css += `.blurb:has(a[href*="${cb.value}"]) { display: none !important; }\n\n`;
     });
     document.getElementById('tagsCssCode').textContent = css || '/* Select tags to generate CSS */';
+    
     const stats = document.getElementById('tagsStats');
-    stats.innerHTML = `<div class="stat-item">Selected: <span class="stat-value">${selected.length}</span> tag(s)</div><div class="stat-item">CSS rules: <span class="stat-value">${selected.length}</span></div>`;
+  
+    while (stats.firstChild) {
+        stats.removeChild(stats.firstChild);
+    }
+    
+    
+    const item1 = document.createElement('div');
+    item1.className = 'stat-item';
+    item1.innerHTML = `Selected: <span class="stat-value">${selected.length}</span> tag(s)`;
+    
+    const item2 = document.createElement('div');
+    item2.className = 'stat-item';
+    item2.innerHTML = `CSS rules: <span class="stat-value">${selected.length}</span>`;
+    
+    stats.appendChild(item1);
+    stats.appendChild(item2);
+    
     document.getElementById('tagsCopyBtnGroup').style.display = selected.length > 0 ? 'flex' : 'none';
 }
 
@@ -331,6 +372,11 @@ async function fetchAuthorFics() {
 
 function displayFandoms() {
     const container = document.getElementById('fandosList');
+    
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+    
     container.innerHTML = '';
 
     Object.entries(allFics).forEach(([fandom, fics]) => {
@@ -411,8 +457,25 @@ function updateFicsCSS() {
         css += `.blurb.work[id*="work-${cb.value}"] { display: none !important; }\n`;
     });
     document.getElementById('ficsCssCode').textContent = css || '/* Select fics to generate CSS */';
+    
     const stats = document.getElementById('ficsStats');
-    stats.innerHTML = `<div class="stat-item">Selected: <span class="stat-value">${selected.length}</span> fic(s)</div><div class="stat-item">CSS rules: <span class="stat-value">${selected.length}</span></div>`;
+   
+    while (stats.firstChild) {
+        stats.removeChild(stats.firstChild);
+    }
+    
+    
+    const item1 = document.createElement('div');
+    item1.className = 'stat-item';
+    item1.innerHTML = `Selected: <span class="stat-value">${selected.length}</span> fic(s)`;
+    
+    const item2 = document.createElement('div');
+    item2.className = 'stat-item';
+    item2.innerHTML = `CSS rules: <span class="stat-value">${selected.length}</span>`;
+    
+    stats.appendChild(item1);
+    stats.appendChild(item2);
+    
     document.getElementById('ficsCopyBtnGroup').style.display = selected.length > 0 ? 'flex' : 'none';
 }
 

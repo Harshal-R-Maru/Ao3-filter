@@ -3,9 +3,16 @@
 // ========================
 
 function decodeHTML(text) {
-    const textarea = document.createElement('textarea');
-    textarea.innerHTML = text;
-    return textarea.value;
+    if (!text) return text;
+    const entities = {
+        '&amp;': '&',
+        '&lt;': '<',
+        '&gt;': '>',
+        '&quot;': '"',
+        '&#039;': "'",
+        '&apos;': "'"
+    };
+    return text.replace(/&amp;|&lt;|&gt;|&quot;|&#039;|&apos;/g, m => entities[m]);
 }
 
 function saveToStorage(key, value) {
@@ -372,10 +379,10 @@ function displayTagCategory(sectionId, title, tags) {
         checkbox.type = 'checkbox';
         checkbox.className = 'tag-checkbox';
         checkbox.value = tag.encoded;
-        checkbox.dataset.tag = tag.display;
+        checkbox.dataset.tag = decodeHTML(tag.display);
         checkbox.dataset.category = tag.category;
         const span = document.createElement('span');
-        span.textContent = tag.display;
+        span.textContent = decodeHTML(tag.display);
         label.appendChild(checkbox);
         label.appendChild(span);
         listDiv.appendChild(label);
@@ -401,10 +408,19 @@ function updateTagCSS() {
     }
     const item1 = document.createElement('div');
     item1.className = 'stat-item';
-    item1.innerHTML = `Selected: <span class="stat-value">${selected.length}</span> tag(s)`;
+    const span1 = document.createElement('span');
+    span1.className = 'stat-value';
+    span1.textContent = selected.length;
+    item1.appendChild(document.createTextNode('Selected: '));
+    item1.appendChild(span1);
+    item1.appendChild(document.createTextNode(' tag(s)'));
     const item2 = document.createElement('div');
     item2.className = 'stat-item';
-    item2.innerHTML = `CSS rules: <span class="stat-value">${selected.length}</span>`;
+    const span2 = document.createElement('span');
+    span2.className = 'stat-value';
+    span2.textContent = selected.length;
+    item2.appendChild(document.createTextNode('CSS rules: '));
+    item2.appendChild(span2);
     stats.appendChild(item1);
     stats.appendChild(item2);
 
@@ -605,10 +621,19 @@ function updateFicsCSS() {
     }
     const item1 = document.createElement('div');
     item1.className = 'stat-item';
-    item1.innerHTML = `Selected: <span class="stat-value">${selected.length}</span> fic(s)`;
+    const span1 = document.createElement('span');
+    span1.className = 'stat-value';
+    span1.textContent = selected.length;
+    item1.appendChild(document.createTextNode('Selected: '));
+    item1.appendChild(span1);
+    item1.appendChild(document.createTextNode(' fic(s)'));
     const item2 = document.createElement('div');
     item2.className = 'stat-item';
-    item2.innerHTML = `CSS rules: <span class="stat-value">${selected.length}</span>`;
+    const span2 = document.createElement('span');
+    span2.className = 'stat-value';
+    span2.textContent = selected.length;
+    item2.appendChild(document.createTextNode('CSS rules: '));
+    item2.appendChild(span2);
     stats.appendChild(item1);
     stats.appendChild(item2);
 
@@ -670,7 +695,13 @@ async function renderBlockedAuthors() {
     list.forEach(author => {
         const chip = document.createElement('span');
         chip.className = 'blocked-chip';
-        chip.innerHTML = `${author} <button class="remove-chip" data-type="author" data-value="${author}">✕</button>`;
+        chip.appendChild(document.createTextNode(decodeHTML(author) + ' '));
+        const btn = document.createElement('button');
+        btn.className = 'remove-chip';
+        btn.dataset.type = 'author';
+        btn.dataset.value = author;
+        btn.textContent = '✕';
+        chip.appendChild(btn);
         container.appendChild(chip);
     });
 
@@ -735,7 +766,13 @@ async function renderBlockedTags() {
         tags.forEach(tag => {
             const chip = document.createElement('span');
             chip.className = 'blocked-chip';
-            chip.innerHTML = `${decodeHTML(tag.display)} <button class="remove-chip" data-type="tag" data-value="${tag.encoded}">✕</button>`;
+            chip.appendChild(document.createTextNode(decodeHTML(tag.display) + ' '));
+            const btn = document.createElement('button');
+            btn.className = 'remove-chip';
+            btn.dataset.type = 'tag';
+            btn.dataset.value = tag.encoded;
+            btn.textContent = '✕';
+            chip.appendChild(btn);
             chipContainer.appendChild(chip);
         });
 
@@ -776,7 +813,13 @@ async function renderBlockedFics() {
     list.forEach(fic => {
         const chip = document.createElement('span');
         chip.className = 'blocked-chip';
-        chip.innerHTML = `${fic.title} <button class="remove-chip" data-type="fic" data-value="${fic.id}">✕</button>`;
+        chip.appendChild(document.createTextNode(decodeHTML(fic.title) + ' '));
+        const btn = document.createElement('button');
+        btn.className = 'remove-chip';
+        btn.dataset.type = 'fic';
+        btn.dataset.value = fic.id;
+        btn.textContent = '✕';
+        chip.appendChild(btn);
         container.appendChild(chip);
     });
 
@@ -883,6 +926,76 @@ async function exportBlockList() {
     URL.revokeObjectURL(url);
     showToast('Block list exported!', 'success');
 }
+
+async function exportCSS() {
+    const authors = await getFromStoragePromise('blockedAuthors');
+    const tags = await getFromStoragePromise('blockedTags');
+    const fics = await getFromStoragePromise('blockedFics');
+
+    let parsedAuthors = [];
+    let parsedTags = [];
+    let parsedFics = [];
+
+    if (typeof authors === 'string') {
+        try { parsedAuthors = JSON.parse(authors); } catch (e) { }
+    } else if (Array.isArray(authors)) {
+        parsedAuthors = authors;
+    }
+
+    if (typeof tags === 'string') {
+        try { parsedTags = JSON.parse(tags); } catch (e) { }
+    } else if (Array.isArray(tags)) {
+        parsedTags = tags;
+    }
+
+    if (typeof fics === 'string') {
+        try { parsedFics = JSON.parse(fics); } catch (e) { }
+    } else if (Array.isArray(fics)) {
+        parsedFics = fics;
+    }
+
+    let css = '/* Generated AO3 Filter CSS - Do not edit manually */\n\n';
+
+    // Authors
+    if (parsedAuthors.length > 0) {
+        css += '/* Blocked Authors */\n';
+        parsedAuthors.forEach(author => {
+            const escaped = author.replace(/"/g, '\\"');
+            css += `li.blurb.banned[data-author-name="${escaped}"] { display: none !important; }\n`;
+        });
+        css += '\n';
+    }
+
+    // Tags
+    if (parsedTags.length > 0) {
+        css += '/* Blocked Tags */\n';
+        parsedTags.forEach(tag => {
+            const encoded = tag.encoded.replace(/"/g, '\\"');
+            css += `li.blurb.banned[data-tag-id="${encoded}"] { display: none !important; }\n`;
+        });
+        css += '\n';
+    }
+
+    // Fics
+    if (parsedFics.length > 0) {
+        css += '/* Blocked Fics */\n';
+        parsedFics.forEach(fic => {
+            const escaped = fic.id.replace(/"/g, '\\"');
+            css += `li[data-work-id="${escaped}"] { display: none !important; }\n`;
+        });
+        css += '\n';
+    }
+
+    const blob = new Blob([css], { type: 'text/css' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ao3-filter-blocklist.css';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('CSS exported!', 'success');
+}
+
 
 function importBlockList(file) {
     const reader = new FileReader();
@@ -1057,6 +1170,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // --- Export / Import ---
     document.getElementById('exportBtn')?.addEventListener('click', exportBlockList);
+    document.getElementById('exportCssBtn')?.addEventListener('click', exportCSS);
     document.getElementById('importBtn')?.addEventListener('click', function () {
         document.getElementById('importFileInput').click();
     });

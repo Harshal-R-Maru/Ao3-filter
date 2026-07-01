@@ -1,5 +1,7 @@
 # AO3 Filter
 
+[![Latest Release](https://img.shields.io/github/v/release/PixelStarForge/Ao3-filter?display_name=tag)](https://github.com/PixelStarForge/Ao3-filter/releases/latest)
+
 **Block unwanted fanworks on Archive of Our Own with custom CSS.**
 
 AO3 Filter is a browser extension that helps you hide works you don't want to see on AO3 — by author, by tag, by individual fic, or even by language. It generates custom CSS that you can paste directly into your AO3 Site Skin, or let the extension auto‑inject it for you.
@@ -53,6 +55,10 @@ This extension was built because i was tired of it and worst things was you coul
 3. Enable **Developer mode** (toggle in the top right).
 4. Click **Load unpacked** and select the extension folder.
 5. The extension icon will appear in your toolbar.
+
+## Download Latest Release
+
+➡️ [Download Latest ZIP](https://github.com/PixelStarForge/Ao3-filter/releases/latest)
 
 ---
 
